@@ -1,0 +1,29 @@
+*.class
+*.log
+.cache
+# sbt specific
+dist/*
+target/
+bin/
+.worksheet/
+submission/
+#lib_managed/
+#src_managed/
+#project/boot/
+#project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+
+# Idea
+.idea
+*.iml
+out/
+
+#sbt
+/RUNNING_PID
+/logs/
+/project/*-shim.sbt
+/project/project/
+/project/target/
+/target/
