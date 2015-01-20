@@ -17,8 +17,8 @@ class Flight06 extends KoanSuite with Matchers with SeveredStackTraces {
     // odd numbers (for the first functions) and even numbers (for the second function) so that the
     // tests pass
 
-    def containsOdd(nums: List[Int]): Boolean = true
-    def containsEven(nums: List[Int]): Boolean = true
+    def containsOdd(nums: List[Int]): Boolean = nums.exists( _%2 != 0)
+    def containsEven(nums: List[Int]): Boolean = nums.exists( _%2 == 0)
 
     containsOdd(List(2,4,6)) should be (false)
     containsEven(List(1,3,5)) should be (false)
@@ -39,13 +39,26 @@ class Flight06 extends KoanSuite with Matchers with SeveredStackTraces {
     // Hint - to make the tests pass, you might need to clean up the string that is read in from the file,
     // try .trim()
 
-    /* val palindrome = withFileContents("quote.txt") { str => str.reverse }
+    def withFileContents(filePath: String)(lineOp: String => String): String = {
+      def firstLineOfFile(filePath: String) : String = {
+        val src = io.Source.fromFile(filePath)
+        try {
+          src.getLines.toList(0)
+        } finally {
+          src.close()
+        }
+      }
+
+      lineOp(firstLineOfFile(filePath))
+    }
+
+     val palindrome = withFileContents("quote.txt") { str => str.reverse }
     palindrome should be ("Madam, I'm Adam")
 
     val total = withFileContents("sum.txt") { str =>
       str.split(",").map(_.toInt).reduceLeft(_ + _).toString   // make sure to understand what this is doing
     }
-    total should be ("20") */
+    total should be ("20")
   }
 
   test ("onlyIfTrue - your own predicate guard") {
@@ -54,18 +67,30 @@ class Flight06 extends KoanSuite with Matchers with SeveredStackTraces {
     // is true, otherwise do nothing. For now, assume that the operation takes no arguments and has no
     // return (Unit).
 
+    def onlyIfTrue(cond: => Boolean)(body: => Unit): Unit = {
+      if (cond) {
+        body
+      }
+    }
 
-    /* val numList = List (-1, 0, -2, 3, -4, 5)
+    val numList = List (-1, 0, -2, 3, -4, 5)
     var numberBelowZero = 0
 
     numList.foreach { n => onlyIfTrue(n < 0) {numberBelowZero += 1 } }
 
-    numberBelowZero should be (3) */
+    numberBelowZero should be (3)
   }
 
   // extra credit - the above exercise is only present to get you used to by-name and curried functions
   // you could do the same using Scala's build in features, without using a var, and in a much more compact
   // way. Write a test to find the number of negative numbers in the list using a filter, and no vars.
   // Why is this a better solution? Where might you want to do as above anyway?
+
+  test (" find the number of negative numbers in the list using a filter") {
+    val numList = List (-1, 0, -2, 3, -4, 5)
+    val numberBelowZero = numList.count(_ < 0)
+
+    numberBelowZero should be (3)
+  }
 
 }
