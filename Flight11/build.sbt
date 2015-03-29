@@ -8,6 +8,6 @@ scalacOptions += "-deprecation"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 
-libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.0" % "test"
 
 libraryDependencies += "junit" % "junit" % "4.5" % "test"

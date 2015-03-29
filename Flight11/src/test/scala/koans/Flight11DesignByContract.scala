@@ -40,15 +40,22 @@ object ColorPair {
 }
 
 class ColorPair(colorName: String) {
+  require(ColorPair.colorMap.get(colorName) != None)
+
   val color = ColorPair.colorMap(colorName)
   private[this] var highlight: Color = _
 
   // property syntax for highlightColor
-  def highlightColor_=(colorName: String) { highlight = ColorPair.colorMap(colorName) }
+  def highlightColor_=(colorName: String) {
+    assert(ColorPair.colorMap.get(colorName) != None)
+    highlight = ColorPair.colorMap(colorName)
+  }
   def highlightColor = highlight
 
   // read only property syntax for getting the color pair tuple
-  def colorPair = (color, highlight)
+  def colorPair = {
+    (color, highlight)
+  } ensuring(color != highlight)
 }
 
 class Flight11DesignByContract extends FunSuite with Matchers with SeveredStackTraces {

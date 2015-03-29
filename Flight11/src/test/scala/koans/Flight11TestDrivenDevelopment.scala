@@ -26,7 +26,7 @@ class Flight11TestDrivenDevelopment extends FunSuite with Matchers with SeveredS
   // here is the initial implementation and the first test. Note - this is the simplest possible
   // solution that meets the test specification.
 
-  def stripAllWhitespace(s: String) = ""
+  def stripAllWhitespace(s: String) = s.replace(" ", "")
 
   // 1. stripAllWhitespace should return empty string when given a single space
 
@@ -37,13 +37,29 @@ class Flight11TestDrivenDevelopment extends FunSuite with Matchers with SeveredS
   // OK - now add the following tests and make them work
 
   // 2. stripAllWhitespace should return empty string when given a single space
-  
+
+  test("stripAllWhitespace should return empty string when given a single space") {
+    stripAllWhitespace(" ") should be ("")
+  }
+
   // 3. stripAllWhitespace should return "a" when given " a"
+
+  test("stripAllWhitespace should return 'a' when given ' a'") {
+    stripAllWhitespace(" a") should be ("a")
+  }
 
   // 4. stripAllWhitespace should return "hello" when given "    hello    "
 
+  test("stripAllWhitespace should return 'hello' when given '    hello    '") {
+    stripAllWhitespace("    hello    ") should be ("hello")
+  }
+
   // 5. stripAllWhitespace should return "peterpiperpickedapeckofpickledpeppers" when given
   //    "  peter piper    picked  a peck       of pickled    peppers     "
+
+  test("stripAllWhitespace should return 'peterpiperpickedapeckofpickledpeppers' when given") {
+    stripAllWhitespace("  peter piper    picked  a peck       of pickled    peppers     ") should be ("peterpiperpickedapeckofpickledpeppers")
+  }
 
   // When you have a single implementation of stripAllWhitespace that satisfies all the tests, you are done
 
