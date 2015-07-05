@@ -14,10 +14,12 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.actor.Props
+import akka.actor.Status.Success
 import akka.util.Timeout
 import org.scalatest.FunSpec
 import koans.support.BlankValues._
 import koans.support.StopOnFirstFailure
+import scala.actors.Future
 import scala.collection._
 import org.scalatest.SeveredStackTraces
 import akka.pattern.ask
@@ -26,6 +28,7 @@ import org.scalatest.Matchers
 import akka.actor._
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.util.Try
 
 // First we are going to create a Logger actor that takes a String message
 // and adds it to a running list of log messages - starting out easy
@@ -42,7 +45,9 @@ class Logger extends Actor {
   // and returning a list of messages on a ListMessage request
   def receive = {
     // put the implementation here and replace the line below
-    case _ =>
+    case s: String => log = s :: log
+    case Reset => log = List.empty[String]
+    case ListMessages => sender ! log
   }
 }
 
@@ -51,7 +56,7 @@ class LoggerSpec extends FunSpec with Matchers with StopOnFirstFailure with Seve
   describe("Logger") {
     val system = ActorSystem("Flight13Logger")
     val logger = system.actorOf(Props[Logger], name = "logger")
-    implicit val timeout = Timeout(5 seconds)
+    implicit val timeout = Timeout(10 seconds)
 
     it("should log messages passed in as Strings") {
       logger !"Hello, world!"
@@ -62,7 +67,12 @@ class LoggerSpec extends FunSpec with Matchers with StopOnFirstFailure with Seve
     // Fill in the method below to send a request to logger to get the
     // current messages and return them as a list of Strings, replacing the Nil
     // place holder here
-    def getCurrentResults(): List[String] = Nil
+    def getCurrentResults(): List[String] = {
+      Await.result(logger ? ListMessages, timeout.duration) match {
+        case l: List[String @unchecked] => l
+        case _ => Nil
+      }
+    }
 
     it("should contain the messages logged so far") {
       val results = getCurrentResults()
@@ -112,7 +122,20 @@ class Trader(val item: String, q: Int, logger: ActorRef) extends Actor {
   // you need to define the receive method here to handle the buys and sells, and other stuff
   def receive = {
     // fill in the receive method here.
-    case _ =>
+    case Buy(q) => {
+      if (quant - q >= 0) {
+        quant = quant - q
+        log(s"Buy($q)")
+      } else {
+        logger ! "Insufficient Beans to sell"
+      }
+
+    }
+    case Sell(q) => {
+      quant = quant + q
+      log(s"Sell($q)")
+    }
+    case Quantity => sender() ! quantity
   }
 }
 
@@ -127,11 +150,18 @@ class Trader(val item: String, q: Int, logger: ActorRef) extends Actor {
 // You should also establish a 5 second timeout implicit for operations
 // in order to get all this to compile.
 
-/*class TraderSpec extends FunSpec with Matchers with StopOnFirstFailure with SeveredStackTraces {
+class TraderSpec extends FunSpec with Matchers with StopOnFirstFailure with SeveredStackTraces {
   describe("Trader") {
 
     // establish the actor system, logger, Beans and PorkBellies traders here,
     // also the timeout
+    val system = ActorSystem("Flight13Logger")
+    val logger = system.actorOf(Props[Logger], name = "logger")
+    implicit val timeout = Timeout(5 seconds)
+
+
+    val beanTrader = system.actorOf(Props(new Trader("Beans", 100, logger)), name = "Beans")
+    val porkBelliesTrader = system.actorOf(Props(new Trader("Pork Bellies", 100, logger)), name = "PorkBellies")
 
     def getCurrentMessages(): List[String] =
       Await.result(logger ? ListMessages, timeout.duration) match {
@@ -191,4 +221,4 @@ class Trader(val item: String, q: Int, logger: ActorRef) extends Actor {
       system.shutdown()
     }
   }
-}*/
+}
